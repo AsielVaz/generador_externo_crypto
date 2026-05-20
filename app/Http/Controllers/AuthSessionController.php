@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\AdminCredentials;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,7 +21,7 @@ class AuthSessionController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        if ($credentials['email'] !== 'admin@admin' || $credentials['password'] !== 'admin') {
+        if (! AdminCredentials::isValid($credentials['email'], $credentials['password'])) {
             return back()
                 ->withErrors(['email' => 'Las credenciales no coinciden con nuestros registros.'])
                 ->onlyInput('email');
