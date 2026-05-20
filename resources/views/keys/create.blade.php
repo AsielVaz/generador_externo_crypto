@@ -34,6 +34,12 @@
             </div>
 
             <div class="field">
+                <label for="paid_date">Fecha del pago</label>
+                <input id="paid_date" name="paid_date" type="date" value="{{ old('paid_date', now()->toDateString()) }}" required>
+                <span class="muted">Se guardara en paid_at con hora 00:00:00.</span>
+            </div>
+
+            <div class="field">
                 <label for="evidence">Evidencia en imagen</label>
                 <input id="evidence" name="evidence" type="file" accept="image/*" required>
                 <span class="muted">Formatos de imagen comunes, maximo 4 MB.</span>

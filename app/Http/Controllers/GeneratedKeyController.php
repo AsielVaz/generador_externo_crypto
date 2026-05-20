@@ -40,9 +40,11 @@ class GeneratedKeyController extends Controller
         $validated = $request->validate([
             'email' => ['required', 'email', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0'],
+            'paid_date' => ['required', 'date_format:Y-m-d'],
             'evidence' => ['required', 'file', 'max:4096'],
         ], [
             'amount.required' => 'El monto es obligatorio.',
+            'paid_date.required' => 'La fecha del pago es obligatoria.',
             'evidence.required' => 'La evidencia en imagen es obligatoria.',
         ]);
 
@@ -58,7 +60,8 @@ class GeneratedKeyController extends Controller
         File::ensureDirectoryExists(storage_path('app/public/evidences'));
         $request->file('evidence')->move(storage_path('app/public/evidences'), $filename);
 
-        $paidAt = now()->format('Y-m-d H:i:s');
+        $paidAt = $validated['paid_date'].' 00:00:00';
+        $generatedAt = now()->format('Y-m-d H:i:s');
         $paymentId = (int) now()->format('YmdHisv');
         $unica = hash('sha256', $validated['email'].'|'.$validated['amount'].'|'.$paymentId.'|'.Str::random(32));
         $reference = (string) random_int(10000, 99999);
@@ -73,8 +76,8 @@ class GeneratedKeyController extends Controller
             'status' => 'paid',
             'reference' => $reference,
             'paid_at' => $paidAt,
-            'created_at' => $paidAt,
-            'updated_at' => $paidAt,
+            'created_at' => $generatedAt,
+            'updated_at' => $generatedAt,
             'unica' => $unica,
         ];
 
@@ -103,7 +106,7 @@ class GeneratedKeyController extends Controller
                 $key->key_filename,
                 (float) $validated['amount'],
                 $paymentId,
-                $paidAt,
+                $generatedAt,
                 route('keys.public-download', $downloadToken)
             );
         } catch (RuntimeException $exception) {
